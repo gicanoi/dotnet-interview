@@ -1,92 +1,90 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoApi.Dtos;
-using TodoApi.Models;
+using TodoApi.Data;
 
-namespace TodoApi.Controllers
+namespace TodoApi.Controllers;
+
+
+[Route("api/todolists/{todoListId}/todoitems")]
+[ApiController]
+public class TodoItemsController : ControllerBase
 {
 
-    [Route("api/todolists/{todoListId}/todoitems")]
-    [ApiController]
-    public class TodoItemsController : ControllerBase
+    readonly ITodoItemDataService _dataService;
+
+    public TodoItemsController(ITodoItemDataService dataService) => _dataService = dataService;
+
+    [HttpPost]
+    public async Task<ActionResult> CreateTodoItem([FromRoute] long todoListId, CreateTodoItem item)
     {
-        private readonly TodoContext _context;
-
-        public TodoItemsController(TodoContext context)
-        {
-            _context = context;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> CreateTodoItem([FromRoute] long todoListId, CreateTodoItem item)
-        {
-            var newItem = new TodoItem()
-            {
-                Description = item.Description,
-                TodoListId = todoListId
-            };
-
-            _context.TodoItems.Add(newItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("CreateTodoItem", newItem);
-        }
-
-        [HttpPut]
-        public async Task<ActionResult> UpdateTodoItem([FromRoute] long todoListId, UpdateTodoItem item)
-        {
-            var todoList = await _context.TodoList.FindAsync(todoListId);
-
-            if (todoList == null)
-                return NotFound();
-
-            var todoItem = await _context.TodoItems.FindAsync(item.Id);
-            if (todoItem == null)
-                return NotFound();
-
-            todoItem.Description = item.Description;
-            await _context.SaveChangesAsync();
-
-            return Ok(todoItem);
-        }
-
-        [HttpPut("{itemId}/complete")]
-        public async Task<ActionResult> CompleteTodoItem([FromRoute] long todoListId, [FromRoute] long itemId)
-        {
-            var todoList = await _context.TodoList.FindAsync(todoListId);
-
-            if (todoList == null)
-                return NotFound();
-
-            var todoItem = await _context.TodoItems.FindAsync(itemId);
-            if (todoItem == null)
-                return NotFound();
-
-            if (todoItem.Completed)
-                return BadRequest("This item is already completed");
-
-            todoItem.Completed = true;
-            await _context.SaveChangesAsync();
-
-            return Ok(todoItem);
-        }
+        var newItem = await _dataService.InsertTodoItem(todoListId, item);
+        return base.CreatedAtAction("CreateTodoItem", newItem);
+    }
 
 
-        [HttpDelete("{itemId}")]
-        public async Task<ActionResult> DeleteTodoItem([FromRoute] long todoListId, [FromRoute] long itemId)
-        {
-            var todoList = await _context.TodoList.FindAsync(todoListId);
+    [HttpGet]
+    public async Task<ActionResult> ListTodoItems([FromRoute] long todoListId)
+    {
+        var todoList = await _dataService.FindTodoList(todoListId);
 
-            if (todoList == null)
-                return NotFound();
+        if (todoList == null)
+            return NotFound();
 
-            var todoItem = await _context.TodoItems.FindAsync(itemId);
-            if (todoItem == null)
-                return NotFound();
+        var items = await _dataService.GetTodoItems(todoListId);
+        return Ok(items);
+    }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
+    [HttpPut]
+    public async Task<ActionResult> UpdateTodoItem([FromRoute] long todoListId, UpdateTodoItem updateTodoItem)
+    {
+        var todoList = await _dataService.FindTodoList(todoListId);
 
-            return Ok(todoItem);
-        }
+        if (todoList == null)
+            return NotFound();
+
+        var existingItem = await _dataService.FindTodoItem(updateTodoItem.Id);
+        if (existingItem == null)
+            return NotFound();
+
+        await _dataService.UpdateTodoItem(updateTodoItem, existingItem);
+
+        return Ok(existingItem);
+    }
+
+    [HttpPut("{itemId}/complete")]
+    public async Task<ActionResult> CompleteTodoItem([FromRoute] long todoListId, [FromRoute] long itemId)
+    {
+        var todoList = await _dataService.FindTodoList(todoListId);
+
+        if (todoList == null)
+            return NotFound();
+
+        var todoItem = await _dataService.FindTodoItem(itemId);
+        if (todoItem == null)
+            return NotFound();
+
+        if (todoItem.Completed)
+            return BadRequest("This item is already completed");
+
+        await _dataService.CompleteTodoItem(todoItem);
+        return Ok(todoItem);
+    }
+
+
+    [HttpDelete("{itemId}")]
+    public async Task<ActionResult> DeleteTodoItem([FromRoute] long todoListId, [FromRoute] long itemId)
+    {
+        var todoList = await _dataService.FindTodoList(todoListId);
+
+        if (todoList == null)
+            return NotFound();
+
+        var todoItem = await _dataService.FindTodoItem(itemId);
+        if (todoItem == null)
+            return NotFound();
+
+        await _dataService.DeleteTodoItem(todoItem);
+
+        return Ok(todoItem);
     }
 }
