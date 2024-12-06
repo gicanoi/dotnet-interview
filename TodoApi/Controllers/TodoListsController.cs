@@ -68,12 +68,6 @@ namespace TodoApi.Controllers
             return CreatedAtAction("GetTodoList", new { id = todoList.Id }, todoList);
         }
 
-
-       
-
-
-
-
         // DELETE: api/todolists/5
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTodoList(long id)
