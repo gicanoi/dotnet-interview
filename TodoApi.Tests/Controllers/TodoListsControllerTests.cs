@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Controllers;
+using TodoApi.Data;
 using TodoApi.Models;
 
 namespace TodoApi.Tests;

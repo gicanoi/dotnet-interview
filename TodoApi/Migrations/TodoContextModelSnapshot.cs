@@ -3,63 +3,63 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using TodoApi.Data;
 
 #nullable disable
 
-namespace TodoApi.Migrations
+namespace TodoApi.Migrations;
+
+[DbContext(typeof(TodoContext))]
+partial class TodoContextModelSnapshot : ModelSnapshot
 {
-    [DbContext(typeof(TodoContext))]
-    partial class TodoContextModelSnapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasAnnotation("ProductVersion", "7.0.0")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TodoApi.Models.TodoItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("TodoApi.Models.TodoItem", b =>
+            {
+                b.Property<long>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<bool>("Completed")
-                        .HasColumnType("bit");
+                b.Property<bool>("Completed")
+                    .HasColumnType("bit");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("TodoListId")
-                        .HasColumnType("bigint");
+                b.Property<long>("TodoListId")
+                    .HasColumnType("bigint");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("TodoItems");
-                });
+                b.ToTable("TodoItems");
+            });
 
-            modelBuilder.Entity("TodoApi.Models.TodoList", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+        modelBuilder.Entity("TodoApi.Models.TodoList", b =>
+            {
+                b.Property<long>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("TodoList");
-                });
+                b.ToTable("TodoList");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }

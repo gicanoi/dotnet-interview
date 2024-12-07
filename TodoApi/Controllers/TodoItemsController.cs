@@ -17,6 +17,11 @@ public class TodoItemsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> CreateTodoItem([FromRoute] long todoListId, CreateTodoItem item)
     {
+        var todoList = await _dataService.FindTodoList(todoListId);
+
+        if (todoList == null)
+            return NotFound();
+
         var newItem = await _dataService.InsertTodoItem(todoListId, item);
         return base.CreatedAtAction("CreateTodoItem", newItem);
     }
@@ -34,15 +39,15 @@ public class TodoItemsController : ControllerBase
         return Ok(items);
     }
 
-    [HttpPut]
-    public async Task<ActionResult> UpdateTodoItem([FromRoute] long todoListId, UpdateTodoItem updateTodoItem)
+    [HttpPut("{itemId}")]
+    public async Task<ActionResult> UpdateTodoItem([FromRoute] long todoListId,[FromRoute] long itemId ,UpdateTodoItem updateTodoItem)
     {
         var todoList = await _dataService.FindTodoList(todoListId);
 
         if (todoList == null)
             return NotFound();
 
-        var existingItem = await _dataService.FindTodoItem(updateTodoItem.Id);
+        var existingItem = await _dataService.FindTodoItem(itemId);
         if (existingItem == null)
             return NotFound();
 
@@ -64,7 +69,7 @@ public class TodoItemsController : ControllerBase
             return NotFound();
 
         if (todoItem.Completed)
-            return BadRequest("This item is already completed");
+            return BadRequest(Errors.ITEM_ALREADY_COMPLETED);
 
         await _dataService.CompleteTodoItem(todoItem);
         return Ok(todoItem);
