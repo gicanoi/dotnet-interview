@@ -29,13 +29,15 @@ public class TodoItemsControllerTests
         context.SaveChanges();
     }
 
+
+
     [Fact]
     public async Task GetTodoItems_WhenCalled_ReturnsTodoItemsList()
     {
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
 
         var result = await controller.ListTodoItems(1);
 
@@ -44,13 +46,15 @@ public class TodoItemsControllerTests
 
     }
 
+    
+
     [Fact]
     public async Task GetTodoItems_WhenCalledWithNonExistingListId_ReturnsNotFound()
     {
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
 
         var result = await controller.ListTodoItems(100000);
 
@@ -64,7 +68,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var aDescription = "new item";
         var result = await controller.CreateTodoItem(1, new Dtos.CreateTodoItem() { Description = aDescription });
 
@@ -78,7 +82,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var aDescription = "new description";
         var result = await controller.CreateTodoItem(1000000, new Dtos.CreateTodoItem() { Description = aDescription });
 
@@ -91,7 +95,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var aDescription = "new description";
         var result = await controller.UpdateTodoItem(10000, 2, new Dtos.UpdateTodoItem() { Description = aDescription });
 
@@ -104,7 +108,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var aDescription = "new description";
         var result = await controller.UpdateTodoItem(1, 1, new Dtos.UpdateTodoItem() { Description = aDescription });
 
@@ -119,7 +123,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var aDescription = "new item";
         var result = await controller.UpdateTodoItem(1, 10000000, new Dtos.UpdateTodoItem() { Description = aDescription });
 
@@ -132,7 +136,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var result = await controller.CompleteTodoItem(1, 1);
 
         Assert.IsType<OkObjectResult>(result);
@@ -145,7 +149,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var result = await controller.CompleteTodoItem(1, 10000000);
 
         Assert.IsType<NotFoundResult>(result);
@@ -157,7 +161,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var result = await controller.CompleteTodoItem(1, 4);
 
         Assert.IsType<BadRequestObjectResult>(result);
@@ -172,7 +176,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var result = await controller.CompleteTodoItem(1000000, 1);
 
         Assert.IsType<NotFoundResult>(result);
@@ -184,7 +188,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var result = await controller.DeleteTodoItem(1, 1);
 
         Assert.IsType<OkObjectResult>(result);
@@ -197,7 +201,7 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var result = await controller.CompleteTodoItem(1, 10000000);
 
         Assert.IsType<NotFoundResult>(result);
@@ -210,14 +214,13 @@ public class TodoItemsControllerTests
         using var context = new TodoContext(DatabaseContextOptions());
         PopulateDatabaseContext(context);
 
-        var controller = new TodoItemsController(CreateDataService(context));
+        var controller = AController(context);
         var result = await controller.CompleteTodoItem(1000000, 1);
 
         Assert.IsType<NotFoundResult>(result);
     }
 
-
-
-
     private static TodoItemDataService CreateDataService(TodoContext context) => new TodoItemDataService(context);
+
+    private static TodoItemsController AController(TodoContext context) => new TodoItemsController(CreateDataService(context));
 }
